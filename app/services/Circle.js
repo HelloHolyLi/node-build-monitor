@@ -68,18 +68,23 @@ module.exports = function () {
         || state === 'running') {
         return "Blue";
       }
+      if (state === 'canceled'
+        || state === 'not_run'
+        || state === 'not_running') {
+        return "Gray";
+      }
       if (state === 'fixed') return "Green";
-      if (state === 'canceled' || state === 'not_run') return "Gray";
       if (result === null || result === true) return "Red";
       if (result === false) return "Green";
 
       return null;
     },
     simplifyBuild = function (res) {
+      let branceType = isGlobBranch(self.configuration.branch) ? 'Pull Request' : res.branch;
       return {
         id: self.configuration.slug + '|' + res.build_num,
-        project: self.configuration.slug + ' | ' + res.branch,
-        number: res.build_num,
+        project: self.configuration.slug + ' | ' + branceType,
+        number: '#' + res.build_num + '   ' + res.branch,
         isRunning: res.status === 'running',
         startedAt: parseDate(res.start_time),
         finishedAt: parseDate(res.stop_time),
