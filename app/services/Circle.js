@@ -37,11 +37,15 @@ module.exports = function () {
       let branchName = self.configuration.branch;
       let numberOfBuilds = self.configuration.numberOfBuilds;
 
+      if (!Array.isArray(results)) {
+        console.warn('Request build failed from circle ci: ', results);
+        return self.lastBuild;
+      }
       if (!isGlobBranch(branchName)) return results;
 
       let branchList = [];
 
-      return results
+      self.lastBuild = results
         .filter((build) => {
           if (self.configuration.unique) {
             let name = build.branch;
@@ -53,6 +57,8 @@ module.exports = function () {
 
           return filterBuild(branchName, build);
         }).slice(0, numberOfBuilds);
+
+      return self.lastBuild;
     },
     filterBuild = function (partten, res) {
       let prefix = partten.replace('*', '');
@@ -118,6 +124,10 @@ module.exports = function () {
     self.configuration.vcsType = config.vcsType || 'github'; //this value ['github', 'bitbucket']
     self.configuration.numberOfBuilds = config.numberOfBuilds || 30; //1 to 100
     self.configuration.unique = config.unique || false;
+<<<<<<< HEAD
+=======
+    self.lastBuild = [];
+>>>>>>> Handle error senario when request circle CI failed.
   };
 
   self.check = function (callback) {
