@@ -39,9 +39,20 @@ module.exports = function () {
 
       if (!isGlobBranch(branchName)) return results;
 
+      let branchList = [];
+
       return results
-        .filter(filterBuild.bind(null, branchName))
-        .slice(0, numberOfBuilds);
+        .filter((build) => {
+          if (self.configuration.unique) {
+            let name = build.branch;
+            if(branchList.indexOf(name) != -1) {
+              return false;
+            }
+            branchList.push(name);
+          }
+
+          return filterBuild(branchName, build);
+        }).slice(0, numberOfBuilds);
     },
     filterBuild = function (partten, res) {
       let prefix = partten.replace('*', '');
@@ -106,6 +117,7 @@ module.exports = function () {
     self.configuration.branch = config.branch || null;
     self.configuration.vcsType = config.vcsType || 'github'; //this value ['github', 'bitbucket']
     self.configuration.numberOfBuilds = config.numberOfBuilds || 30; //1 to 100
+    self.configuration.unique = config.unique || false;
   };
 
   self.check = function (callback) {
